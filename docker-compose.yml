@@ -1,0 +1,36 @@
+version: '3'
+services:
+  redis:
+    container_name: redis
+    image: "redis:alpine"
+    ports:
+       - "6379"
+    networks:
+       - backend
+  app:
+    image: "docker-scale-demo:latest"
+    ports:
+       - 8080
+    links:
+       - redis
+    environment:
+       - SERVICE_PORTS=8080
+    networks:
+       - backend
+       - web
+  proxy:
+    image: dockercloud/haproxy
+    links:
+      - app
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 80:80
+    networks:
+      - web
+networks:
+  web:
+     driver: bridge
+  backend:
+     driver: bridge
+
